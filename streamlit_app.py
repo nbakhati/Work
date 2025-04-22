@@ -17,10 +17,20 @@ st.markdown("Analyze SBIR grant awards across agencies and geographies.")
 def fetch_sbir_awards(company_name):
     url = f"https://api.www.sbir.gov/public/api/awards?firm={company_name}&start=0&rows=1000"
     response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()['results']
-    else:
+    try:
+        data = response.json()
+        # If the response is a list, just return it
+        if isinstance(data, list):
+            return data
+        # If it's a dictionary and has 'results', return 'results'
+        elif isinstance(data, dict) and 'results' in data:
+            return data['results']
+        else:
+            return []  # Handle unexpected structure
+    except Exception as e:
+        st.error(f"Error parsing JSON: {e}")
         return []
+
 
 # -------------------
 # Sidebar Filters
